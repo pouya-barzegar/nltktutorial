@@ -14,6 +14,7 @@ from nltk.tokenize import word_tokenize
 
 
 class VoteClassifier(ClassifierI):
+
     def __init__(self, *classifiers):
         self._classifiers = classifiers
 
@@ -33,17 +34,17 @@ class VoteClassifier(ClassifierI):
         choice_votes = votes.count(mode(votes))
         conf = choice_votes / len(votes)
         return conf
-        
-short_pos = open("short_reviews/positive.txt","r").read()
-short_neg = open("short_reviews/negative.txt","r").read()
+
+short_pos = open("short_reviews/positive.txt", "r").read()
+short_neg = open("short_reviews/negative.txt", "r").read()
 
 documents = []
 
 for r in short_pos.split('\n'):
-    documents.append( (r, "pos") )
+    documents.append((r, "pos"))
 
 for r in short_neg.split('\n'):
-    documents.append( (r, "neg") )
+    documents.append((r, "neg"))
 
 
 all_words_f = open("all_words.pickle", "rb")
@@ -58,6 +59,7 @@ word_features = pickle.load(word_features_f)
 word_features_f.close()
 print("word_features added")
 
+
 def find_features(document):
     words = word_tokenize(document)
     features = {}
@@ -66,7 +68,7 @@ def find_features(document):
 
     return features
 
-#print((find_features(movie_reviews.words('neg/cv000_29416.txt'))))
+# print((find_features(movie_reviews.words('neg/cv000_29416.txt'))))
 
 featuresets = [(find_features(rev), category) for (rev, category) in documents]
 featuresets_pickle = open("featuresets.pickle", "wb")
@@ -74,54 +76,62 @@ pickle.dump(featuresets, featuresets_pickle)
 featuresets_pickle.close()
 random.shuffle(featuresets)
 
-# positive data example:      
+# positive data example:
 training_set = featuresets[:10000]
-testing_set =  featuresets[10000:]
+testing_set = featuresets[10000:]
 
 ##
-### negative data example:      
+# negative data example:
 ##training_set = featuresets[100:]
 ##testing_set =  featuresets[:100]
 
 
 classifier = nltk.NaiveBayesClassifier.train(training_set)
-print("Original Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier, testing_set))*100)
+print("Original Naive Bayes Algo accuracy percent:",
+      (nltk.classify.accuracy(classifier, testing_set)) * 100)
 classifier.show_most_informative_features(15)
 
 MNB_classifier = SklearnClassifier(MultinomialNB())
 MNB_classifier.train(training_set)
-print("MNB_classifier accuracy percent:", (nltk.classify.accuracy(MNB_classifier, testing_set))*100)
+print("MNB_classifier accuracy percent:",
+      (nltk.classify.accuracy(MNB_classifier, testing_set)) * 100)
 
 BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
 BernoulliNB_classifier.train(training_set)
-print("BernoulliNB_classifier accuracy percent:", (nltk.classify.accuracy(BernoulliNB_classifier, testing_set))*100)
+print("BernoulliNB_classifier accuracy percent:",
+      (nltk.classify.accuracy(BernoulliNB_classifier, testing_set)) * 100)
 
 LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
 LogisticRegression_classifier.train(training_set)
-print("LogisticRegression_classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier, testing_set))*100)
+print("LogisticRegression_classifier accuracy percent:",
+      (nltk.classify.accuracy(LogisticRegression_classifier, testing_set)) * 100)
 
 SGDClassifier_classifier = SklearnClassifier(SGDClassifier())
 SGDClassifier_classifier.train(training_set)
-print("SGDClassifier_classifier accuracy percent:", (nltk.classify.accuracy(SGDClassifier_classifier, testing_set))*100)
+print("SGDClassifier_classifier accuracy percent:",
+      (nltk.classify.accuracy(SGDClassifier_classifier, testing_set)) * 100)
 
 ##SVC_classifier = SklearnClassifier(SVC())
-##SVC_classifier.train(training_set)
+# SVC_classifier.train(training_set)
 ##print("SVC_classifier accuracy percent:", (nltk.classify.accuracy(SVC_classifier, testing_set))*100)
 
 LinearSVC_classifier = SklearnClassifier(LinearSVC())
 LinearSVC_classifier.train(training_set)
-print("LinearSVC_classifier accuracy percent:", (nltk.classify.accuracy(LinearSVC_classifier, testing_set))*100)
+print("LinearSVC_classifier accuracy percent:",
+      (nltk.classify.accuracy(LinearSVC_classifier, testing_set)) * 100)
 
 NuSVC_classifier = SklearnClassifier(NuSVC())
 NuSVC_classifier.train(training_set)
-print("NuSVC_classifier accuracy percent:", (nltk.classify.accuracy(NuSVC_classifier, testing_set))*100)
+print("NuSVC_classifier accuracy percent:",
+      (nltk.classify.accuracy(NuSVC_classifier, testing_set)) * 100)
 
 
 voted_classifier = VoteClassifier(
-                                  NuSVC_classifier,
-                                  LinearSVC_classifier,
-                                  MNB_classifier,
-                                  BernoulliNB_classifier,
-                                  LogisticRegression_classifier)
+    NuSVC_classifier,
+    LinearSVC_classifier,
+    MNB_classifier,
+    BernoulliNB_classifier,
+    LogisticRegression_classifier)
 
-print("voted_classifier accuracy percent:", (nltk.classify.accuracy(voted_classifier, testing_set))*100)
+print("voted_classifier accuracy percent:",
+      (nltk.classify.accuracy(voted_classifier, testing_set)) * 100)

@@ -1,8 +1,8 @@
-#File: sentiment_mod.py
+# File: sentiment_mod.py
 
 import nltk
 import random
-#from nltk.corpus import movie_reviews
+# from nltk.corpus import movie_reviews
 from nltk.classify.scikitlearn import SklearnClassifier
 import pickle
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
@@ -76,7 +76,7 @@ open_file = open("pickled_algos/MNB_classifier5k.pickle", "rb")
 MNB_classifier = pickle.load(open_file)
 open_file.close()
 
-    
+
 open_file = open("pickled_algos/BernoulliNB_classifier5k.pickle", "rb")
 BernoulliNB_classifier = pickle.load(open_file)
 open_file.close()
@@ -98,14 +98,13 @@ open_file.close()
 
 
 voted_classifier = VoteClassifier(
-                                  classifier,
-                                  LinearSVC_classifier,
-                                  MNB_classifier,
-                                  BernoulliNB_classifier,
-                                  LogisticRegression_classifier)
-
+    classifier,
+    LinearSVC_classifier,
+    MNB_classifier,
+    BernoulliNB_classifier,
+    LogisticRegression_classifier)
 
 
 def sentiment(text):
     feats = find_features(text)
-    return voted_classifier.classify(feats),voted_classifier.confidence(feats)
+    return voted_classifier.classify(feats), voted_classifier.confidence(feats)
